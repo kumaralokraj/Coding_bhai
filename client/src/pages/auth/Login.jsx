@@ -23,48 +23,62 @@ function Login() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    // Basic validation
-    if (!formData.email || !formData.password) {
-      alert("Please enter email and password");
+  if (!formData.email || !formData.password) {
+    alert("Please enter email and password");
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    const response = await api.post("/auth/login", {
+      email: formData.email,
+      password: formData.password,
+    });
+
+    console.log("LOGIN FULL RESPONSE:", response);
+    console.log("LOGIN DATA:", response.data);
+
+    const token = response.data?.token;
+    const user = response.data?.user;
+
+    if (!token) {
+      console.error("Token missing from login response");
+      alert("Login successful but token was not received from server.");
       return;
     }
 
-    try {
-      setLoading(true);
+    // Save JWT
+    localStorage.setItem("token", token);
 
-      const response = await api.post("/auth/login", {
-        email: formData.email,
-        password: formData.password,
-      });
-
-      console.log("Login Response:", response.data);
-
-      // Save JWT token
-      localStorage.setItem("token", response.data.token);
-
-      // Optional: save user information
-      localStorage.setItem(
-        "user",
-        JSON.stringify(response.data.user)
-      );
-
-      alert("Login successful 🎉");
-
-      // Go to Dashboard
-      navigate("/");
-    } catch (error) {
-      console.error("Login Error:", error);
-
-      alert(
-        error.response?.data?.message ||
-          "Login failed. Please try again."
-      );
-    } finally {
-      setLoading(false);
+    // Save user
+    if (user) {
+      localStorage.setItem("user", JSON.stringify(user));
     }
-  };
+
+    // Verify token saved
+    console.log(
+      "TOKEN SAVED:",
+      localStorage.getItem("token")
+    );
+
+    alert("Login successful 🎉");
+
+    // Home page
+    navigate("/");
+  } catch (error) {
+    console.error("Login Error:", error);
+
+    alert(
+      error.response?.data?.message ||
+        "Login failed. Please try again."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4 py-12 text-white">

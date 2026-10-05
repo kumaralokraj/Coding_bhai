@@ -1,8 +1,25 @@
-import api from "./api";
+import axios from "axios";
 
-// Get logged-in user's dashboard data
-export const getDashboard = async () => {
-  const response = await api.get("/dashboard");
+const api = axios.create({
+  baseURL: "http://localhost:5000/api",
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
 
-  return response.data;
-};
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("token");
+
+    console.log("TOKEN BEING SENT:", token);
+
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+export default api;

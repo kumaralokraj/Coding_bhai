@@ -841,25 +841,7 @@ const handleChangePassword = async (e) => {
 
       {/* Mobile Header */}
 
-      <header className="sticky top-0 z-30 flex h-16 items-center border-b border-slate-800 bg-slate-950/95 px-5 backdrop-blur lg:hidden">
-
-        <button
-          onClick={() => setIsMobileMenuOpen(true)}
-          className="rounded-lg border border-slate-700 px-3 py-1.5 text-xl"
-        >
-          ☰
-        </button>
-
-        <Link
-          to="/"
-          className="ml-3 text-xl font-bold"
-        >
-          Coding<span className="text-cyan-400">
-            Bhai
-          </span>
-        </Link>
-
-      </header>
+    
 
 
       {/* Main */}

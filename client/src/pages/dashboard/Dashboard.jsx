@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 
 import Sidebar from "../../components/layout/Sidebar";
 import MobileSidebar from "../../components/layout/MobileSidebar";
+import ActivityChart from "../../components/dashboard/ActivityChart";
 
-import { getDashboard } from "../../services/dashboard";
+import api from "../../services/api";
 
 function Dashboard() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -15,27 +16,44 @@ function Dashboard() {
   // ================= FETCH DASHBOARD =================
 
   useEffect(() => {
-    const fetchDashboard = async () => {
-      try {
-        const data = await getDashboard();
+  const fetchDashboard = async () => {
+    try {
+      const token = localStorage.getItem("token");
 
-        console.log("Dashboard Data:", data);
+      console.log("TOKEN:", token);
 
-        setDashboardData(data);
-      } catch (error) {
-        console.error("Dashboard Error:", error);
-
-        setError(
-          error.response?.data?.message ||
-            "Failed to load dashboard"
-        );
-      } finally {
+      if (!token) {
+        setError("Please login first.");
         setLoading(false);
+        return;
       }
-    };
 
-    fetchDashboard();
-  }, []);
+      const response = await api.get("/dashboard", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      console.log("DASHBOARD RESPONSE:", response.data);
+
+      setDashboardData(response.data);
+    } catch (error) {
+      console.error("DASHBOARD ERROR:", error);
+
+      // IMPORTANT:
+      // Abhi token delete MAT karo
+      // Pehle actual backend error dekho.
+      setError(
+        error.response?.data?.message ||
+        "Failed to load dashboard"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchDashboard();
+}, []);
 
   // ================= LOADING =================
 
@@ -97,22 +115,9 @@ function Dashboard() {
 
       {/* Mobile Header */}
 
-      <header className="flex h-16 items-center justify-between border-b border-slate-800 px-5 lg:hidden">
+      
 
-        <h1 className="text-xl font-bold">
-          Coding<span className="text-cyan-400">Bhai</span>
-        </h1>
-
-        <button
-          onClick={() =>
-            setIsMobileMenuOpen(true)
-          }
-          className="rounded-lg border border-slate-700 px-3 py-2 text-xl"
-        >
-          ☰
-        </button>
-
-      </header>
+      
 
       {/* Main */}
 
@@ -269,6 +274,7 @@ function Dashboard() {
             </div>
 
           </div>
+          <ActivityChart />
 
           {/* ================= RECENT PROBLEMS ================= */}
 

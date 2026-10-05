@@ -145,17 +145,35 @@ function Sidebar() {
       </nav>
 
       {/* Bottom */}
-      <div className="border-t border-slate-800 p-4">
-        <div className="rounded-xl bg-slate-900 p-4">
-          <p className="text-sm font-semibold text-white">
-            AI Mentor 🤖
-          </p>
-
-          <p className="mt-1 text-xs text-slate-500">
-            Get help while coding
-          </p>
-        </div>
+      {/* Bottom - AI Mentor */}
+<div className="border-t border-slate-800 p-4">
+  <NavLink
+    to="/ai-mentor"
+    className={({ isActive }) =>
+      `block rounded-xl p-4 transition ${
+        isActive
+          ? "border border-cyan-500/30 bg-cyan-500/10"
+          : "bg-slate-900 hover:bg-slate-800"
+      }`
+    }
+  >
+    <div className="flex items-center gap-3">
+      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-cyan-500/10 text-xl">
+        🤖
       </div>
+
+      <div>
+        <p className="text-sm font-semibold text-white">
+          AI Mentor
+        </p>
+
+        <p className="mt-1 text-xs text-slate-500">
+          Get help while coding
+        </p>
+      </div>
+    </div>
+  </NavLink>
+</div>
     </aside>
   );
 }

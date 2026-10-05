@@ -1,114 +1,167 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import Editor from "@monaco-editor/react";
 
-const problems = {
-  1: {
-    title: "Two Sum",
-    difficulty: "Easy",
-    description:
-      "Given an array of integers nums and an integer target, return the indices of the two numbers such that they add up to target.",
-
-    starterCode: {
-      javascript: `function twoSum(nums, target) {
-  // Write your solution here
-}`,
-      cpp: `#include <bits/stdc++.h>
-using namespace std;
-
-vector<int> twoSum(vector<int>& nums, int target) {
-    // Write your solution here
-}`,
-      java: `class Solution {
-    public int[] twoSum(int[] nums, int target) {
-        // Write your solution here
-        return new int[]{};
-    }
-}`,
-      python: `def twoSum(nums, target):
-    # Write your solution here
-    pass`,
-    },
-  },
-
-  2: {
-    title: "Valid Parentheses",
-    difficulty: "Easy",
-    description:
-      "Given a string containing just the characters '(', ')', '{', '}', '[' and ']', determine if the input string is valid.",
-
-    starterCode: {
-      javascript: `function isValid(s) {
-  // Write your solution here
-}`,
-      cpp: `#include <bits/stdc++.h>
-using namespace std;
-
-bool isValid(string s) {
-    // Write your solution here
-}`,
-      java: `class Solution {
-    public boolean isValid(String s) {
-        // Write your solution here
-        return false;
-    }
-}`,
-      python: `def isValid(s):
-    # Write your solution here
-    pass`,
-    },
-  },
-};
-
-const languages = {
-  javascript: {
-    label: "JavaScript",
-    monaco: "javascript",
-  },
-  cpp: {
-    label: "C++",
-    monaco: "cpp",
-  },
-  java: {
-    label: "Java",
-    monaco: "java",
-  },
-  python: {
-    label: "Python",
-    monaco: "python",
-  },
-};
+import { getProblemById } from "../../services/problemService";
+import { runCode } from "../../services/code";
 
 function ProblemSolve() {
   const { id } = useParams();
 
-  const problem = problems[id];
+  const [problem, setProblem] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [running, setRunning] = useState(false);
+  const [error, setError] = useState("");
 
   const [language, setLanguage] = useState("javascript");
 
-  const [code, setCode] = useState(
-    problem?.starterCode?.javascript || ""
-  );
-
-  const [input, setInput] = useState("");
+  const [code, setCode] = useState(`function solution() {
+  // Write your solution here
+}
+`);
 
   const [output, setOutput] = useState("");
+  const [outputType, setOutputType] = useState("normal");
 
-  const [status, setStatus] = useState("idle");
+  // ================= FETCH PROBLEM =================
 
-  const [isRunning, setIsRunning] = useState(false);
+  useEffect(() => {
+    const fetchProblem = async () => {
+      try {
+        setLoading(true);
+        setError("");
 
-  if (!problem) {
+        const response = await getProblemById(id);
+
+        console.log("Problem response:", response);
+
+        const problemData = response?.problem || response?.data?.problem;
+
+        if (!problemData) {
+          throw new Error("Problem not found");
+        }
+
+        setProblem(problemData);
+      } catch (err) {
+        console.error("Problem fetch error:", err);
+
+        setError(
+          err.response?.data?.message ||
+            err.message ||
+            "Failed to load problem"
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchProblem();
+    }
+  }, [id]);
+
+  // ================= LANGUAGE CHANGE =================
+
+  const handleLanguageChange = (e) => {
+    const selectedLanguage = e.target.value;
+
+    setLanguage(selectedLanguage);
+
+    // Default starter code
+    const starterCode = {
+      javascript: `function solution() {
+  // Write your solution here
+}
+`,
+
+      python: `def solution():
+    # Write your solution here
+    pass
+`,
+
+      java: `public class Solution {
+    public static void main(String[] args) {
+        // Write your solution here
+    }
+}
+`,
+
+      cpp: `#include <iostream>
+using namespace std;
+
+int main() {
+    // Write your solution here
+
+    return 0;
+}
+`,
+    };
+
+    setCode(starterCode[selectedLanguage]);
+    setOutput("");
+  };
+
+  // ================= RUN CODE =================
+
+  const handleRun = async () => {
+  try {
+    setOutput("Submitting code...");
+
+    const response = await runCode({
+      language,
+      code,
+    });
+
+    setOutput(
+      `Code submitted successfully.\nJob ID: ${response.jobId}`
+    );
+
+  } catch (error) {
+    console.error("Run Code Error:", error);
+
+    setOutput(
+      error.response?.data?.message ||
+      "Failed to run code"
+    );
+  }
+};
+
+  // ================= LOADING =================
+
+  if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-950 text-white">
         <div className="text-center">
-          <h1 className="text-3xl font-bold">
+          <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-slate-700 border-t-cyan-400" />
+
+          <p className="text-cyan-400">
+            Loading problem...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // ================= ERROR =================
+
+  if (error || !problem) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4 text-white">
+        <div className="w-full max-w-md rounded-2xl border border-red-500/20 bg-slate-900 p-8 text-center">
+          <div className="mb-4 text-4xl">
+            ⚠️
+          </div>
+
+          <h2 className="text-xl font-bold">
             Problem Not Found
-          </h1>
+          </h2>
+
+          <p className="mt-3 text-sm text-red-400">
+            {error || "Unable to load this problem."}
+          </p>
 
           <Link
             to="/problems"
-            className="mt-4 inline-block text-cyan-400"
+            className="mt-6 inline-block rounded-xl bg-cyan-500 px-5 py-2.5 font-semibold text-slate-950 transition hover:bg-cyan-400"
           >
             ← Back to Problems
           </Link>
@@ -117,295 +170,309 @@ function ProblemSolve() {
     );
   }
 
-  const handleLanguageChange = (newLanguage) => {
-    setLanguage(newLanguage);
+  // ================= TAGS =================
 
-    setCode(
-      problem.starterCode[newLanguage]
-    );
+  let tags = problem.tags || [];
 
-    setOutput("");
-    setStatus("idle");
-  };
+  if (typeof tags === "string") {
+    try {
+      tags = JSON.parse(tags);
+    } catch {
+      tags = tags
+        .split(",")
+        .map((tag) => tag.trim())
+        .filter(Boolean);
+    }
+  }
 
-  const handleRun = async () => {
-    setIsRunning(true);
-    setStatus("running");
-    setOutput("");
-
-    /*
-      Abhi real Docker execution nahi hai.
-
-      Backend execution API banne ke baad:
-      
-      await api.post("/execute", {
-        language,
-        code,
-        input
-      });
-    */
-
-    setTimeout(() => {
-      setOutput(
-        "Code execution engine will run your code here."
-      );
-
-      setStatus("success");
-      setIsRunning(false);
-    }, 800);
-  };
-
-  const handleSubmit = async () => {
-    setIsRunning(true);
-    setStatus("submitting");
-    setOutput("");
-
-    /*
-      Future API:
-
-      await api.post("/submissions", {
-        problemId: id,
-        language,
-        code
-      });
-    */
-
-    setTimeout(() => {
-      setOutput(
-        "Submission sent to CodingBhai Judge."
-      );
-
-      setStatus("success");
-      setIsRunning(false);
-    }, 1000);
-  };
+  // ================= UI =================
 
   return (
-    <div className="flex h-screen flex-col bg-slate-950 text-white">
+    <div className="min-h-screen bg-slate-950 text-white">
 
-      {/* TOP BAR */}
-      <header className="flex h-16 items-center justify-between border-b border-slate-800 bg-slate-900 px-5">
+      {/* ================= TOP BAR ================= */}
 
-        <div className="flex items-center gap-4">
+      <header className="sticky top-0 z-30 border-b border-slate-800 bg-slate-950/95 backdrop-blur">
 
-          <Link
-            to={`/problems/${id}`}
-            className="text-slate-400 hover:text-white"
-          >
-            ←
-          </Link>
+        <div className="flex h-16 items-center justify-between px-5">
 
-          <div>
-            <h1 className="font-semibold">
+          {/* Left */}
+
+          <div className="flex min-w-0 items-center gap-4">
+
+            <Link
+              to={`/problems/${id}`}
+              className="shrink-0 text-sm text-cyan-400 hover:text-cyan-300"
+            >
+              ← Problem
+            </Link>
+
+            <div className="hidden h-6 w-px bg-slate-800 sm:block" />
+
+            <h1 className="truncate text-lg font-bold">
               {problem.title}
             </h1>
 
-            <span className="text-xs text-emerald-400">
-              {problem.difficulty}
-            </span>
           </div>
 
-        </div>
+          {/* Right */}
 
-        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3">
 
-          {/* Language */}
-          <select
-            value={language}
-            onChange={(e) =>
-              handleLanguageChange(e.target.value)
-            }
-            className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm outline-none focus:border-cyan-500"
-          >
-            {Object.entries(languages).map(
-              ([key, value]) => (
-                <option
-                  key={key}
-                  value={key}
-                >
-                  {value.label}
-                </option>
-              )
-            )}
-          </select>
+            <select
+              value={language}
+              onChange={handleLanguageChange}
+              className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-cyan-500"
+            >
+              <option value="javascript">
+                JavaScript
+              </option>
 
-          {/* Run */}
-          <button
-            onClick={handleRun}
-            disabled={isRunning}
-            className="rounded-lg border border-slate-700 px-4 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            ▶ Run
-          </button>
+              <option value="python">
+                Python
+              </option>
 
-          {/* Submit */}
-          <button
-            onClick={handleSubmit}
-            disabled={isRunning}
-            className="rounded-lg bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            Submit
-          </button>
+              <option value="java">
+                Java
+              </option>
+
+              <option value="cpp">
+                C++
+              </option>
+            </select>
+
+            <button
+              onClick={handleRun}
+              disabled={running}
+              className="rounded-lg bg-cyan-500 px-5 py-2 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {running ? "Running..." : "▶ Run"}
+            </button>
+
+          </div>
 
         </div>
 
       </header>
 
-      {/* MAIN */}
-      <main className="flex min-h-0 flex-1">
+      {/* ================= MAIN ================= */}
 
-        {/* PROBLEM PANEL */}
-        <section className="w-[38%] min-w-[320px] overflow-y-auto border-r border-slate-800 bg-slate-950">
+      <main className="grid min-h-[calc(100vh-64px)] lg:grid-cols-2">
 
-          <div className="p-6">
+        {/* ================= PROBLEM PANEL ================= */}
 
-            <h2 className="mb-5 text-xl font-bold">
-              {problem.title}
-            </h2>
+        <section className="overflow-y-auto border-b border-slate-800 lg:border-b-0 lg:border-r">
 
-            <p className="leading-7 text-slate-300">
-              {problem.description}
-            </p>
+          <div className="p-6 lg:p-8">
 
-            {/* Example */}
-            <div className="mt-8">
+            {/* Title */}
 
-              <h3 className="mb-3 font-semibold">
-                Example
-              </h3>
+            <div className="flex items-start justify-between gap-4">
 
-              <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
+              <div>
 
-                <p className="text-sm text-slate-400">
-                  Input
+                <h2 className="text-2xl font-bold">
+                  {problem.title}
+                </h2>
+
+                <p className="mt-2 text-sm text-slate-500">
+                  Problem #{problem.id}
                 </p>
-
-                <pre className="mt-2 text-cyan-300">
-                  nums = [2,7,11,15]
-                  {"\n"}
-                  target = 9
-                </pre>
-
-                <p className="mt-4 text-sm text-slate-400">
-                  Output
-                </p>
-
-                <pre className="mt-2 text-emerald-400">
-                  [0,1]
-                </pre>
 
               </div>
 
+              {/* Difficulty */}
+
+              <span
+                className={`rounded-lg px-3 py-1.5 text-xs font-semibold ${
+                  problem.difficulty === "Easy"
+                    ? "bg-emerald-500/10 text-emerald-400"
+                    : problem.difficulty === "Medium"
+                    ? "bg-yellow-500/10 text-yellow-400"
+                    : "bg-red-500/10 text-red-400"
+                }`}
+              >
+                {problem.difficulty}
+              </span>
+
             </div>
 
-            {/* Constraints */}
+            {/* Description */}
+
             <div className="mt-8">
 
-              <h3 className="mb-3 font-semibold">
-                Constraints
+              <h3 className="text-lg font-semibold">
+                Description
               </h3>
 
-              <ul className="space-y-2 text-sm text-slate-400">
-                <li>• 2 ≤ nums.length ≤ 10⁴</li>
-                <li>• -10⁹ ≤ nums[i] ≤ 10⁹</li>
-                <li>• -10⁹ ≤ target ≤ 10⁹</li>
-                <li>• Only one valid answer exists.</li>
-              </ul>
+              <p className="mt-4 whitespace-pre-line leading-7 text-slate-300">
+                {problem.description}
+              </p>
 
             </div>
+
+            {/* Category */}
+
+            {problem.category && (
+              <div className="mt-8">
+
+                <h3 className="text-sm font-semibold text-slate-300">
+                  Category
+                </h3>
+
+                <span className="mt-3 inline-block rounded-lg bg-slate-800 px-3 py-1.5 text-xs text-slate-300">
+                  {problem.category}
+                </span>
+
+              </div>
+            )}
+
+            {/* Tags */}
+
+            {tags.length > 0 && (
+              <div className="mt-8">
+
+                <h3 className="text-sm font-semibold text-slate-300">
+                  Topics
+                </h3>
+
+                <div className="mt-3 flex flex-wrap gap-2">
+
+                  {tags.map((tag, index) => (
+                    <span
+                      key={`${tag}-${index}`}
+                      className="rounded-lg bg-slate-800 px-3 py-1.5 text-xs text-slate-400"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+
+                </div>
+
+              </div>
+            )}
+
+            {/* Companies */}
+
+            {problem.companies?.length > 0 && (
+              <div className="mt-8">
+
+                <h3 className="text-sm font-semibold text-slate-300">
+                  Asked By
+                </h3>
+
+                <div className="mt-3 flex flex-wrap gap-2">
+
+                  {problem.companies.map((company, index) => (
+                    <span
+                      key={`${company}-${index}`}
+                      className="rounded-lg border border-slate-700 px-3 py-1.5 text-xs text-slate-400"
+                    >
+                      {company}
+                    </span>
+                  ))}
+
+                </div>
+
+              </div>
+            )}
 
           </div>
 
         </section>
 
-        {/* RIGHT SIDE */}
-        <section className="flex min-w-0 flex-1 flex-col">
+        {/* ================= EDITOR PANEL ================= */}
 
-          {/* EDITOR */}
-          <div className="min-h-0 flex-1">
+        <section className="flex min-h-[600px] flex-col bg-[#0b1120]">
 
-            <Editor
-              height="100%"
-              language={languages[language].monaco}
-              value={code}
-              onChange={(value) =>
-                setCode(value || "")
-              }
-              theme="vs-dark"
-              options={{
-                fontSize: 15,
-                minimap: {
-                  enabled: false,
-                },
-                automaticLayout: true,
-                padding: {
-                  top: 15,
-                },
-                scrollBeyondLastLine: false,
-              }}
-            />
+          {/* Editor Header */}
+
+          <div className="flex items-center justify-between border-b border-slate-800 bg-slate-900 px-4 py-3">
+
+            <div className="flex items-center gap-3">
+
+              <span className="text-xs uppercase tracking-wider text-slate-500">
+                Editor
+              </span>
+
+              <span className="rounded-md bg-slate-800 px-2 py-1 text-xs text-slate-400">
+                {language}
+              </span>
+
+            </div>
+
+            <button
+              onClick={() => setCode("")}
+              className="text-xs text-slate-500 transition hover:text-red-400"
+            >
+              Clear
+            </button>
 
           </div>
 
-          {/* INPUT / OUTPUT */}
-          <div className="h-[260px] border-t border-slate-800 bg-slate-900">
+          {/* Code Editor */}
 
-            <div className="flex h-full">
+          <textarea
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            spellCheck={false}
+            autoCapitalize="off"
+            autoCorrect="off"
+            className="min-h-[450px] flex-1 resize-none bg-[#0b1120] p-5 font-mono text-sm leading-6 text-slate-200 outline-none placeholder:text-slate-700"
+            placeholder="Write your code here..."
+          />
 
-              {/* INPUT */}
-              <div className="w-1/2 border-r border-slate-800">
+          {/* Output */}
 
-                <div className="border-b border-slate-800 px-4 py-3">
-                  <span className="text-sm font-medium">
-                    Custom Input
-                  </span>
+          <div className="min-h-[180px] border-t border-slate-800 bg-slate-900">
+
+            <div className="flex items-center justify-between border-b border-slate-800 px-5 py-3">
+
+              <h3 className="text-sm font-semibold">
+                Output
+              </h3>
+
+              {output && (
+                <button
+                  onClick={() => setOutput("")}
+                  className="text-xs text-slate-500 hover:text-white"
+                >
+                  Clear
+                </button>
+              )}
+
+            </div>
+
+            <div className="min-h-[120px] overflow-auto p-5">
+
+              {running ? (
+
+                <div className="flex items-center gap-3 text-sm text-cyan-400">
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-700 border-t-cyan-400" />
+                  Executing your code...
                 </div>
 
-                <textarea
-                  value={input}
-                  onChange={(e) =>
-                    setInput(e.target.value)
-                  }
-                  placeholder="Enter your input..."
-                  className="h-[210px] w-full resize-none bg-slate-900 p-4 font-mono text-sm text-slate-300 outline-none placeholder:text-slate-600"
-                />
+              ) : output ? (
 
-              </div>
-
-              {/* OUTPUT */}
-              <div className="w-1/2">
-
-                <div className="flex items-center justify-between border-b border-slate-800 px-4 py-3">
-
-                  <span className="text-sm font-medium">
-                    Output
-                  </span>
-
-                  {status === "success" && (
-                    <span className="text-xs text-emerald-400">
-                      ✓ Success
-                    </span>
-                  )}
-
-                  {status === "running" && (
-                    <span className="text-xs text-yellow-400">
-                      Running...
-                    </span>
-                  )}
-
-                  {status === "submitting" && (
-                    <span className="text-xs text-yellow-400">
-                      Submitting...
-                    </span>
-                  )}
-
-                </div>
-
-                <pre className="h-[210px] overflow-auto whitespace-pre-wrap p-4 font-mono text-sm text-slate-300">
-                  {output || "Run your code to see output..."}
+                <pre
+                  className={`whitespace-pre-wrap text-sm ${
+                    outputType === "error"
+                      ? "text-red-400"
+                      : outputType === "success"
+                      ? "text-green-400"
+                      : "text-slate-300"
+                  }`}
+                >
+                  {output}
                 </pre>
 
-              </div>
+              ) : (
+
+                <p className="text-sm text-slate-600">
+                  Run your code to see output.
+                </p>
+
+              )}
 
             </div>
 

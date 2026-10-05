@@ -1,5 +1,9 @@
 import { Routes, Route } from "react-router-dom";
 
+// Layout
+import AppLayout from "./components/layout/AppLayout";
+
+
 // Pages
 import Home from "./pages/Home";
 import Leaderboard from "./pages/Leaderboard";
@@ -9,70 +13,154 @@ import Settings from "./pages/Settings";
 import Login from "./pages/auth/Login";
 import Signup from "./pages/auth/Signup";
 
-// Profile Pages
+// Profile
 import Profile from "./pages/profile/Profile";
 
-// Dashboard Pages
+// Dashboard
 import Dashboard from "./pages/dashboard/Dashboard";
 
-// Contests Pages
+// Contests
 import Contests from "./pages/contests/Contests";
 import ContestDetails from "./pages/contests/ContestDetails";
 
-// Interview Pages
+// Interview
 import Interview from "./pages/interview/Interview";
 import InterviewSession from "./pages/interview/InterviewSession";
 import InterviewSetup from "./pages/interview/InterviewSetup";
 import InterviewResult from "./pages/interview/InterviewResult";
 
-// Problems Pages
+// Problems
 import Problems from "./pages/problems/Problems";
 import ProblemDetails from "./pages/problems/ProblemDetails";
+import ProblemSolve from "./pages/problems/ProblemSolve";
 
-// Learn Pages
+// Learn
 import Learn from "./pages/learn/Learn";
 import CourseDetails from "./pages/learn/CourseDetails";
 import Lesson from "./pages/learn/Lesson";
-import ProblemSolve from "./pages/problems/ProblemSolve";
+
+// AI
+import AIMentor from "./components/ai/AIMentor";
+
 function App() {
   return (
     <Routes>
-      {/* Home & Main Routes */}
-      <Route path="/" element={<Home />} />
-      <Route path="/leaderboard" element={<Leaderboard />} />
-      <Route path="/settings" element={<Settings />} />
 
-      {/* Auth Routes */}
+      {/* ================= AUTH ================= */}
+
+      {/* No Sidebar */}
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
 
-      {/* Profile Routes */}
-      <Route path="/profile" element={<Profile />} />
 
-      {/* Dashboard Routes */}
-      <Route path="/dashboard" element={<Dashboard />} />
+      {/* ================= MAIN APP ================= */}
 
-      {/* Contests Routes */}
-      <Route path="/contests" element={<Contests />} />
-      <Route path="/contests/:id" element={<ContestDetails />} />
+      {/* Sidebar stays mounted */}
+      <Route element={<AppLayout />}>
+      <Route
+  path="/problems/:id"
+  element={<ProblemDetails />}
+/>
 
-      {/* Interview Routes */}
-      <Route path="/interview" element={<Interview />} />
-      <Route path="/interview/setup" element={<InterviewSetup />} />
-      <Route path="/interview/session/:id" element={<InterviewSession />} />
-      <Route path="/interview/result/:id" element={<InterviewResult />} />
+<Route
+  path="/problems/:id/solve"
+  element={<ProblemSolve />}
+/>
 
-      {/* Problems Routes */}
-      <Route path="/problems" element={<Problems />} />
-      <Route path="/problems/:id" element={<ProblemDetails />} />
+        {/* Home */}
+        <Route path="/" element={<Home />} />
 
-      {/* Learn Routes */}
-      <Route path="/learn" element={<Learn />} />
-      <Route path="/learn/:courseId" element={<CourseDetails />} />
-      <Route path="/learn/:courseId/lesson/:lessonId" element={<Lesson />} />
-      <Route path="/problems/:id" element={<ProblemDetails />} />
+        {/* Dashboard */}
+        <Route path="/dashboard" element={<Dashboard />} />
 
-      <Route path="/problems/:id/solve" element={<ProblemSolve />} />
+        {/* Profile */}
+        <Route path="/profile" element={<Profile />} />
+
+        {/* Settings */}
+        <Route path="/settings" element={<Settings />} />
+
+        {/* Leaderboard */}
+        <Route path="/leaderboard" element={<Leaderboard />} />
+
+
+        {/* ================= CONTESTS ================= */}
+
+        <Route path="/contests" element={<Contests />} />
+
+        <Route
+          path="/contests/:id"
+          element={<ContestDetails />}
+        />
+
+
+        {/* ================= INTERVIEW ================= */}
+
+        <Route
+          path="/interview"
+          element={<Interview />}
+        />
+
+        <Route
+          path="/interview/setup"
+          element={<InterviewSetup />}
+        />
+
+        <Route
+          path="/interview/session/:id"
+          element={<InterviewSession />}
+        />
+
+        <Route
+          path="/interview/result/:id"
+          element={<InterviewResult />}
+        />
+
+
+        {/* ================= PROBLEMS ================= */}
+
+        <Route
+          path="/problems"
+          element={<Problems />}
+        />
+
+        <Route
+          path="/problems/:id"
+          element={<ProblemDetails />}
+        />
+
+        <Route
+          path="/problems/:id/solve"
+          element={<ProblemSolve />}
+        />
+
+
+        {/* ================= LEARN ================= */}
+
+        <Route
+          path="/learn"
+          element={<Learn />}
+        />
+
+        <Route
+          path="/learn/:courseId"
+          element={<CourseDetails />}
+        />
+
+        <Route
+          path="/learn/:courseId/lesson/:lessonId"
+          element={<Lesson />}
+        />
+
+
+        {/* ================= AI MENTOR ================= */}
+
+        <Route
+          path="/ai-mentor"
+          element={<AIMentor />}
+        />
+
+      </Route>
+
     </Routes>
   );
 }
