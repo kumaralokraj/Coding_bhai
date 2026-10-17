@@ -1,6 +1,20 @@
 import api from "./api.js";
 
 const interviewService = {
+  getAuthConfig() {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      throw new Error("Please login to practice interviews.");
+    }
+
+    return {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+  },
+
   // Get interview questions
   async getInterviewQuestions(difficulty = null, topic = null, page = 1, limit = 10) {
     try {
@@ -25,9 +39,13 @@ const interviewService = {
   },
 
   // Start interview session
-  async startInterview(difficulty) {
+  async startInterview(difficulty, questionIds) {
     try {
-      return await api.post("/interviews", { difficulty });
+      return await api.post(
+        "/interviews",
+        { difficulty, questionIds },
+        this.getAuthConfig()
+      );
     } catch (error) {
       throw error;
     }
@@ -36,7 +54,7 @@ const interviewService = {
   // Get interview session
   async getInterviewSession(id) {
     try {
-      return await api.get(`/interviews/${id}`);
+      return await api.get(`/interviews/${id}`, this.getAuthConfig());
     } catch (error) {
       throw error;
     }
@@ -45,7 +63,11 @@ const interviewService = {
   // Update interview session
   async updateInterviewSession(id, updateData) {
     try {
-      return await api.put(`/interviews/${id}`, updateData);
+      return await api.put(
+        `/interviews/${id}`,
+        updateData,
+        this.getAuthConfig()
+      );
     } catch (error) {
       throw error;
     }
@@ -54,7 +76,11 @@ const interviewService = {
   // Submit interview
   async submitInterview(id, answers) {
     try {
-      return await api.post(`/interviews/${id}/submit`, { answers });
+      return await api.post(
+        `/interviews/${id}/submit`,
+        { answers },
+        this.getAuthConfig()
+      );
     } catch (error) {
       throw error;
     }
@@ -66,7 +92,10 @@ const interviewService = {
       const params = new URLSearchParams();
       params.append("page", page);
       params.append("limit", limit);
-      return await api.get(`/interviews/my-sessions?${params.toString()}`);
+      return await api.get(
+        `/interviews/my-sessions?${params.toString()}`,
+        this.getAuthConfig()
+      );
     } catch (error) {
       throw error;
     }

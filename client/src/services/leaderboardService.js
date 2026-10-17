@@ -3,14 +3,10 @@ import api from "./api.js";
 const leaderboardService = {
   // Get global leaderboard
   async getGlobalLeaderboard(page = 1, limit = 50) {
-    try {
-      const params = new URLSearchParams();
-      params.append("page", page);
-      params.append("limit", limit);
-      return await api.get(`/leaderboard?${params.toString()}`);
-    } catch (error) {
-      throw error;
-    }
+    const params = new URLSearchParams();
+    params.append("page", page);
+    params.append("limit", limit);
+    return api.get(`/leaderboard?${params.toString()}`);
   },
 
   // Get contest leaderboard

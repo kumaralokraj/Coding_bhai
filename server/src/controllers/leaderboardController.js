@@ -1,28 +1,75 @@
-import { pool } from "../../server.js";
+import pool from "../config/db.js";
 
 export const getGlobalLeaderboard = async (req, res, next) => {
   try {
-    const { page = 1, limit = 50 } = req.query;
+    const page =
+      req.query.page === undefined ? 1 : Number(req.query.page);
+    const requestedLimit =
+      req.query.limit === undefined ? 50 : Number(req.query.limit);
+
+    if (
+      !Number.isSafeInteger(page) ||
+      !Number.isSafeInteger(requestedLimit) ||
+      page < 1 ||
+      requestedLimit < 1
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Page and limit must be positive numbers.",
+      });
+    }
+
+    const limit = Math.min(requestedLimit, 100);
     const offset = (page - 1) * limit;
+    const [result, countResult] = await Promise.all([
+      pool.query(
+        `
+        WITH scores AS (
+          SELECT
+            u.id,
+            u.name,
+            (COUNT(DISTINCT s.problem_id)
+              FILTER (WHERE LOWER(s.status) = 'accepted'))::int AS problems_solved,
+            COUNT(s.id)::int AS total_submissions
+          FROM users u
+          LEFT JOIN submissions s ON s.user_id = u.id
+          GROUP BY u.id, u.name
+        ),
+        ranked AS (
+          SELECT
+            id,
+            name,
+            problems_solved,
+            total_submissions,
+            ROW_NUMBER() OVER (
+              ORDER BY problems_solved DESC, id ASC
+            )::int AS rank
+          FROM scores
+        )
+        SELECT id, name, problems_solved, total_submissions, rank
+        FROM ranked
+        ORDER BY rank
+        LIMIT $1 OFFSET $2
+        `,
+        [limit, offset]
+      ),
+      pool.query("SELECT COUNT(*)::int AS total FROM users"),
+    ]);
 
-    const result = await pool.query(
-      `SELECT u.id, u.name, u.email, 
-              COUNT(DISTINCT s.id) as problems_solved,
-              COUNT(DISTINCT s.id) as total_submissions
-       FROM users u
-       LEFT JOIN submissions s ON u.id = s.user_id AND s.status = 'accepted'
-       GROUP BY u.id
-       ORDER BY problems_solved DESC
-       LIMIT $1 OFFSET $2`,
-      [limit, offset]
-    );
+    const total = Number(countResult.rows[0].total);
 
-    res.json({
+    return res.json({
       success: true,
       leaderboard: result.rows,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.max(1, Math.ceil(total / limit)),
+      },
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
 

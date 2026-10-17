@@ -10,6 +10,13 @@ import activityRoutes from "./routes/activityRoutes.js";
 import problemRoutes from "./routes/problemRoutes.js";
 import codeRoutes from "./routes/codeRoutes.js";
 import submissionRoutes from "./routes/submissionRoutes.js";
+import progressRoutes from "./routes/progressRoutes.js";
+import leaderboardRoutes from "./routes/leaderboardRoutes.js";
+import interviewRoutes from "./routes/interviewRoutes.js";
+import adminProblemRoutes from "./routes/adminProblemRoutes.js";
+
+import adminRoutes from "./routes/adminRoutes.js";
+
 
 
 
@@ -22,8 +29,15 @@ app.use(cors());
 app.use(express.json());
 app.use("/api/code", codeRoutes);
 app.use("/api/submissions", submissionRoutes);
+app.use("/api/progress", progressRoutes);
+
+app.use("/api/admin", adminRoutes);
+
+app.use("/api/leaderboard", leaderboardRoutes);
+app.use("/api/interviews", interviewRoutes);
 
 app.use("/api/problems", problemRoutes);
+app.use("/api/admin/problems", adminProblemRoutes);
 
 app.use("/api/auth", authRoutes);
 app.use("/api/dashboard", dashboardRoutes);
@@ -38,7 +52,7 @@ app.get("/", (req, res) => {
   });
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT ;
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

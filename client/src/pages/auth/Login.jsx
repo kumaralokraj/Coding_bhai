@@ -23,87 +23,73 @@ function Login() {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (!formData.email || !formData.password) {
-    alert("Please enter email and password");
-    return;
-  }
-
-  try {
-    setLoading(true);
-
-    const response = await api.post("/auth/login", {
-      email: formData.email,
-      password: formData.password,
-    });
-
-    console.log("LOGIN FULL RESPONSE:", response);
-    console.log("LOGIN DATA:", response.data);
-
-    const token = response.data?.token;
-    const user = response.data?.user;
-
-    if (!token) {
-      console.error("Token missing from login response");
-      alert("Login successful but token was not received from server.");
+    if (!formData.email || !formData.password) {
+      alert("Please enter email and password");
       return;
     }
 
-    // Save JWT
-    localStorage.setItem("token", token);
+    try {
+      setLoading(true);
 
-    // Save user
-    if (user) {
-      localStorage.setItem("user", JSON.stringify(user));
+      const response = await api.post("/auth/login", {
+        email: formData.email,
+        password: formData.password,
+      });
+
+      console.log("LOGIN FULL RESPONSE:", response);
+      console.log("LOGIN DATA:", response.data);
+
+      const token = response.data?.token;
+      const user = response.data?.user;
+
+      if (!token) {
+        console.error("Token missing from login response");
+        alert("Login successful but token was not received from server.");
+        return;
+      }
+
+      // Save JWT
+      localStorage.setItem("token", token);
+
+      // Save user
+      if (user) {
+        localStorage.setItem("user", JSON.stringify(user));
+      }
+
+      // Verify token saved
+      console.log("TOKEN SAVED:", localStorage.getItem("token"));
+
+      alert("Login successful 🎉");
+
+      // Home page
+      navigate("/");
+    } catch (error) {
+      console.error("Login Error:", error);
+
+      alert(error.response?.data?.message || "Login failed. Please try again.");
+    } finally {
+      setLoading(false);
     }
-
-    // Verify token saved
-    console.log(
-      "TOKEN SAVED:",
-      localStorage.getItem("token")
-    );
-
-    alert("Login successful 🎉");
-
-    // Home page
-    navigate("/");
-  } catch (error) {
-    console.error("Login Error:", error);
-
-    alert(
-      error.response?.data?.message ||
-        "Login failed. Please try again."
-    );
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4 py-12 text-white">
       <div className="w-full max-w-md space-y-8">
-
         {/* Header */}
         <div className="text-center">
           <h1 className="text-3xl font-bold">
             Coding<span className="text-cyan-400">Bhai</span>
           </h1>
 
-          <h2 className="mt-6 text-2xl font-bold">
-            Welcome Back
-          </h2>
+          <h2 className="mt-6 text-2xl font-bold">Welcome Back</h2>
 
-          <p className="mt-2 text-slate-400">
-            Sign in to your account
-          </p>
+          <p className="mt-2 text-slate-400">Sign in to your account</p>
         </div>
 
         {/* Login Form */}
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-6"
-        >
+        <form onSubmit={handleSubmit} className="space-y-6">
           <AuthInput
             label="Email"
             name="email"
@@ -122,6 +108,15 @@ function Login() {
             placeholder="Enter your password"
           />
 
+          <div className="flex justify-end -mt-3">
+            <Link
+              to="/forgot-password"
+              className="text-sm text-cyan-400 transition hover:text-cyan-300"
+            >
+              Forgot Password?
+            </Link>
+          </div>
+
           <button
             type="submit"
             disabled={loading}
@@ -134,14 +129,10 @@ function Login() {
         {/* Signup Link */}
         <p className="text-center text-slate-400">
           Don't have an account?{" "}
-          <Link
-            to="/signup"
-            className="text-cyan-400 hover:text-cyan-300"
-          >
+          <Link to="/signup" className="text-cyan-400 hover:text-cyan-300">
             Sign up
           </Link>
         </p>
-
       </div>
     </div>
   );

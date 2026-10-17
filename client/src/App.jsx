@@ -1,8 +1,11 @@
 import { Routes, Route } from "react-router-dom";
 
+import AdminPanel from "./pages/AdminPanel";
+import ForgotPassword from "./pages/auth/ForgotPassword";
+import ResetPassword from "./pages/auth/ResetPassword";
+
 // Layout
 import AppLayout from "./components/layout/AppLayout";
-
 
 // Pages
 import Home from "./pages/Home";
@@ -18,6 +21,7 @@ import Profile from "./pages/profile/Profile";
 
 // Dashboard
 import Dashboard from "./pages/dashboard/Dashboard";
+import Progress from "./pages/Progress";
 
 // Contests
 import Contests from "./pages/contests/Contests";
@@ -45,33 +49,31 @@ import AIMentor from "./components/ai/AIMentor";
 function App() {
   return (
     <Routes>
-
       {/* ================= AUTH ================= */}
 
       {/* No Sidebar */}
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
 
+      <Route path="/reset-password" element={<ResetPassword />} />
 
       {/* ================= MAIN APP ================= */}
 
       {/* Sidebar stays mounted */}
       <Route element={<AppLayout />}>
-      <Route
-  path="/problems/:id"
-  element={<ProblemDetails />}
-/>
+        <Route path="/problems/:id" element={<ProblemDetails />} />
 
-<Route
-  path="/problems/:id/solve"
-  element={<ProblemSolve />}
-/>
+        <Route path="/problems/:id/solve" element={<ProblemSolve />} />
 
         {/* Home */}
         <Route path="/" element={<Home />} />
 
         {/* Dashboard */}
         <Route path="/dashboard" element={<Dashboard />} />
+
+        {/* Progress */}
+        <Route path="/progress" element={<Progress />} />
 
         {/* Profile */}
         <Route path="/profile" element={<Profile />} />
@@ -82,85 +84,44 @@ function App() {
         {/* Leaderboard */}
         <Route path="/leaderboard" element={<Leaderboard />} />
 
-
         {/* ================= CONTESTS ================= */}
 
         <Route path="/contests" element={<Contests />} />
 
-        <Route
-          path="/contests/:id"
-          element={<ContestDetails />}
-        />
-
+        <Route path="/contests/:id" element={<ContestDetails />} />
 
         {/* ================= INTERVIEW ================= */}
 
-        <Route
-          path="/interview"
-          element={<Interview />}
-        />
+        <Route path="/interview" element={<Interview />} />
 
-        <Route
-          path="/interview/setup"
-          element={<InterviewSetup />}
-        />
+        <Route path="/interview/setup" element={<InterviewSetup />} />
 
-        <Route
-          path="/interview/session/:id"
-          element={<InterviewSession />}
-        />
+        <Route path="/interview/session/:id" element={<InterviewSession />} />
 
-        <Route
-          path="/interview/result/:id"
-          element={<InterviewResult />}
-        />
-
+        <Route path="/interview/result/:id" element={<InterviewResult />} />
 
         {/* ================= PROBLEMS ================= */}
 
-        <Route
-          path="/problems"
-          element={<Problems />}
-        />
+        <Route path="/problems" element={<Problems />} />
 
-        <Route
-          path="/problems/:id"
-          element={<ProblemDetails />}
-        />
+        <Route path="/problems/:id" element={<ProblemDetails />} />
 
-        <Route
-          path="/problems/:id/solve"
-          element={<ProblemSolve />}
-        />
-
+        <Route path="/problems/:id/solve" element={<ProblemSolve />} />
 
         {/* ================= LEARN ================= */}
 
-        <Route
-          path="/learn"
-          element={<Learn />}
-        />
+        <Route path="/learn" element={<Learn />} />
 
-        <Route
-          path="/learn/:courseId"
-          element={<CourseDetails />}
-        />
+        <Route path="/learn/:courseId" element={<CourseDetails />} />
 
-        <Route
-          path="/learn/:courseId/lesson/:lessonId"
-          element={<Lesson />}
-        />
-
+        <Route path="/learn/:courseId/lesson/:lessonId" element={<Lesson />} />
 
         {/* ================= AI MENTOR ================= */}
 
-        <Route
-          path="/ai-mentor"
-          element={<AIMentor />}
-        />
+        <Route path="/ai-mentor" element={<AIMentor />} />
 
+        <Route path="/admin" element={<AdminPanel />} />
       </Route>
-
     </Routes>
   );
 }
