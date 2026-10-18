@@ -1,25 +1,15 @@
 
-<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-
   <url>
     <loc>https://codingbhai.online/</loc>
   </url>
-
   <url>
     <loc>https://codingbhai.online/problems</loc>
   </url>
-
-  <url>
-    <loc>https://codingbhai.online/leaderboard</loc>
-  </url>
-
   <url>
     <loc>https://codingbhai.online/learn</loc>
   </url>
-
   <url>
-    <loc>https://codingbhai.online/contests</loc>
+    <loc>https://codingbhai.online/leaderboard</loc>
   </url>
-
 </urlset>
