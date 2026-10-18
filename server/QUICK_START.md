@@ -15,11 +15,11 @@ CREATE DATABASE coding_bhai;
 ```
 
 ### Step 2: Create Database Tables
-Copy and run all SQL from [server/SQL_SCHEMA.sql](./SQL_SCHEMA.md) in your PostgreSQL client.
+Copy and run the SQL from [SQL_SCHEMA.sql](./SQL_SCHEMA.sql) in your PostgreSQL client.
 
 Or use psql:
 ```bash
-psql -U postgres -d coding_bhai -f schema.sql
+psql -U postgres -d coding_bhai -f SQL_SCHEMA.sql
 ```
 
 ---
@@ -147,7 +147,7 @@ npm run dev
 
 ## 📚 Documentation
 - Full API docs: See [API_DOCUMENTATION.md](./API_DOCUMENTATION.md)
-- Database schema: See [SQL_SCHEMA.md](./SQL_SCHEMA.md)
+- Database schema: See [SQL_SCHEMA.sql](./SQL_SCHEMA.sql)
 - Controller details: Check individual files in `src/controllers/`
 
 ---

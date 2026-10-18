@@ -14,7 +14,8 @@ import progressRoutes from "./routes/progressRoutes.js";
 import leaderboardRoutes from "./routes/leaderboardRoutes.js";
 import interviewRoutes from "./routes/interviewRoutes.js";
 import adminProblemRoutes from "./routes/adminProblemRoutes.js";
-
+import adminCourseRoutes from "./routes/adminCourseRoutes.js";
+import courseRoutes from "./routes/courseRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 
 
@@ -38,6 +39,8 @@ app.use("/api/interviews", interviewRoutes);
 
 app.use("/api/problems", problemRoutes);
 app.use("/api/admin/problems", adminProblemRoutes);
+app.use("/api/admin/courses", adminCourseRoutes);
+app.use("/api/courses", courseRoutes);
 
 app.use("/api/auth", authRoutes);
 app.use("/api/dashboard", dashboardRoutes);
