@@ -1,3 +1,4 @@
+import SEO from "../components/SEO";
 import { Link } from "react-router-dom";
 
 import Hero from "../components/landing/Hero";
@@ -10,6 +11,11 @@ function Home() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
+      <SEO
+        title="CodingBhai | Online Coding Practice & AI Mentor"
+        description="Practice DSA, solve coding problems, learn programming, debug code with AI, and prepare for technical interviews with CodingBhai."
+        path="/"
+      />
 
       {/* Top Bar */}
       <header
@@ -24,20 +30,18 @@ function Home() {
           lg:px-8
         "
       >
-
         {/* Auth Section */}
-       {/* ================= AUTH SECTION ================= */}
-<div className="flex items-center gap-3">
-
-  {token ? (
-    // LOGGED IN
-    <button
-      onClick={() => {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        window.location.href = "/";
-      }}
-      className="
+        {/* ================= AUTH SECTION ================= */}
+        <div className="flex items-center gap-3">
+          {token ? (
+            // LOGGED IN
+            <button
+              onClick={() => {
+                localStorage.removeItem("token");
+                localStorage.removeItem("user");
+                window.location.href = "/";
+              }}
+              className="
         rounded-xl
         bg-red-500/10
         px-5 py-2
@@ -48,15 +52,15 @@ function Home() {
         hover:bg-red-500/20
         hover:text-red-300
       "
-    >
-      Logout
-    </button>
-  ) : (
-    // LOGGED OUT
-    <>
-      <Link
-        to="/login"
-        className="
+            >
+              Logout
+            </button>
+          ) : (
+            // LOGGED OUT
+            <>
+              <Link
+                to="/login"
+                className="
           rounded-xl
           px-4 py-2
           text-sm
@@ -66,13 +70,13 @@ function Home() {
           hover:bg-slate-800
           hover:text-white
         "
-      >
-        Login
-      </Link>
+              >
+                Login
+              </Link>
 
-      <Link
-        to="/signup"
-        className="
+              <Link
+                to="/signup"
+                className="
           rounded-xl
           bg-cyan-500
           px-5 py-2
@@ -82,13 +86,12 @@ function Home() {
           transition
           hover:bg-cyan-400
         "
-      >
-        Sign Up
-      </Link>
-    </>
-  )}
-
-</div>
+              >
+                Sign Up
+              </Link>
+            </>
+          )}
+        </div>
       </header>
 
       {/* Landing Page */}
@@ -96,7 +99,6 @@ function Home() {
       <Features />
       <HowItWorks />
       <CTASection />
-
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import SEO from "../../components/SEO";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getProblems } from "../../services/problemService";
@@ -136,6 +137,11 @@ function Problems() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
+      <SEO
+      title="DSA Coding Problems | CodingBhai"
+      description="Practice DSA problems, learn data structures and algorithms, and improve your coding interview skills with CodingBhai."
+      path="/problems"
+    />
 
       {/* ================= HEADER ================= */}
 
