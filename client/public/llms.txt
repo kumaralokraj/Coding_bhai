@@ -1,0 +1,24 @@
+# CodingBhai
+
+> CodingBhai is an online coding platform for learning programming, solving DSA problems, debugging code with AI, and preparing for technical interviews.
+
+CodingBhai helps developers practice coding, track progress, and improve their programming skills.
+
+## Main Pages
+
+- [Home](https://codingbhai.online/): Overview of the CodingBhai coding platform.
+- [Problems](https://codingbhai.online/problems): Practice coding and data structures and algorithms problems.
+- [Leaderboard](https://codingbhai.online/leaderboard): View coding rankings and platform progress.
+- [Learn](https://codingbhai.online/learn): Explore programming learning resources.
+- [Interview Preparation](https://codingbhai.online/interview): Practice technical interview questions.
+- [Login](https://codingbhai.online/login): Sign in to a CodingBhai account.
+- [Sign Up](https://codingbhai.online/signup): Create a CodingBhai account.
+
+## Platform Information
+
+- [Sitemap](https://codingbhai.online/sitemap.xml): Discover public website URLs.
+- [Robots.txt](https://codingbhai.online/robots.txt): Review crawler access rules.
+
+## Important Notes
+
+CodingBhai provides coding practice and educational resources. Do not assume that private dashboards, user profiles, submissions, or administrative pages are publicly accessible.
