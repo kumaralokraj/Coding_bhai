@@ -105,20 +105,7 @@ function AIMentor() {
       />
 
       {/* Mobile Header */}
-      <header className="flex h-16 items-center justify-between border-b border-slate-800 px-5 lg:hidden">
-        <button
-          onClick={() => setIsMobileMenuOpen(true)}
-          className="rounded-lg border border-slate-700 px-3 py-2"
-        >
-          ☰
-        </button>
-
-        <h1 className="text-xl font-bold">
-          Coding<span className="text-cyan-400">Bhai</span>
-        </h1>
-
-        <div className="w-10" />
-      </header>
+      
 
       {/* Main */}
       <main className="lg:ml-64">
