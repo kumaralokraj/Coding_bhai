@@ -3,7 +3,8 @@ import { Routes, Route } from "react-router-dom";
 import AdminPanel from "./pages/AdminPanel";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import ResetPassword from "./pages/auth/ResetPassword";
-
+import AdminCourses from "./pages/admin/AdminCourses";
+import AdminLessons from "./pages/admin/AdminLessons";
 // Layout
 import AppLayout from "./components/layout/AppLayout";
 
@@ -121,6 +122,11 @@ function App() {
         <Route path="/ai-mentor" element={<AIMentor />} />
 
         <Route path="/admin" element={<AdminPanel />} />
+        <Route path="/admin/courses" element={<AdminCourses />} />
+        <Route
+          path="/admin/courses/:courseId/lessons"
+          element={<AdminLessons />}
+        />
       </Route>
     </Routes>
   );

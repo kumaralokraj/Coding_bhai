@@ -3,7 +3,13 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 
-const menu = ["Dashboard", "Users", "Problems", "Security"];
+const menu = [
+  "Dashboard",
+  "Users",
+  "Problems",
+  "Courses",
+  "Security",
+];
 
 const emptyProblem = {
   title: "",
@@ -166,14 +172,18 @@ function AdminPanel() {
     }
   }
 
-  function selectPage(page) {
-    setActivePage(page);
-    clearAlerts();
+function selectPage(page) {
+  setActivePage(page);
+  clearAlerts();
 
-    if (page === "Dashboard") loadDashboard();
-    if (page === "Users") loadUsers();
-    if (page === "Problems") loadProblems();
+  if (page === "Dashboard") loadDashboard();
+  if (page === "Users") loadUsers();
+  if (page === "Problems") loadProblems();
+
+  if (page === "Courses") {
+    navigate("/admin/courses");
   }
+}
 
   async function toggleUser(user) {
     clearAlerts();
