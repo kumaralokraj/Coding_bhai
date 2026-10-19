@@ -11,6 +11,7 @@ function Learn() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [failedThumbnails, setFailedThumbnails] = useState(() => new Set());
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -95,17 +96,24 @@ function Learn() {
                 key={course.id}
                 className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 transition hover:-translate-y-1 hover:border-cyan-400/60"
               >
-                {course.thumbnail_url ? (
+                {course.thumbnail_url && !failedThumbnails.has(course.id) ? (
                   <img
                     src={course.thumbnail_url}
                     alt={course.title}
                     loading="lazy"
-                    className="h-44 w-full object-cover"
+                    onError={() =>
+                      setFailedThumbnails((previous) => {
+                        const next = new Set(previous);
+                        next.add(course.id);
+                        return next;
+                      })
+                    }
+                    className="h-44 w-full bg-slate-950 object-contain p-5"
                   />
                 ) : (
                   <div className="flex h-44 items-center justify-center bg-gradient-to-br from-slate-800 to-cyan-950">
-                    <span className="text-5xl font-bold text-cyan-300">
-                      {course.title?.charAt(0)?.toUpperCase() || "C"}
+                    <span className="rounded-2xl border border-cyan-400/30 bg-slate-950/50 px-6 py-4 font-mono text-4xl font-bold text-cyan-300">
+                      {course.title?.trim()?.slice(0, 3)?.toUpperCase() || "</>"}
                     </span>
                   </div>
                 )}
@@ -119,9 +127,11 @@ function Learn() {
                     {course.title}
                   </h2>
 
-                  <p className="mt-2 line-clamp-3 text-sm text-slate-400">
-                    {course.description || "Start learning this course today."}
-                  </p>
+                  {course.description && (
+                    <p className="mt-2 line-clamp-3 text-sm text-slate-400">
+                      {course.description}
+                    </p>
+                  )}
 
                   <p className="mt-4 text-sm text-slate-500">
                     {course.lesson_count ?? 0} lessons

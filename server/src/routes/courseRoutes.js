@@ -9,7 +9,7 @@ import {
 const router = express.Router();
 
 router.get("/", getPublishedCourses);
-router.get("/:slug/lessons/:lessonSlug", getPublishedLesson);
+router.get("/:courseSlug/lessons/:lessonSlug", getPublishedLesson);
 router.get("/:slug", getPublishedCourse);
 
 export default router;
