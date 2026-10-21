@@ -70,7 +70,28 @@ export const AuthProvider = ({ children }) => {
       setIsLoading(false);
     }
   }, []);
+const googleLogin = useCallback(async (credential) => {
+  try {
+    setIsLoading(true);
+    setError(null);
 
+    const response = await authService.googleLogin(credential);
+
+    if (response.token && response.user) {
+      setToken(response.token);
+      setUser(response.user);
+      setUserState(response.user);
+      setIsAuthenticated(true);
+    }
+
+    return response;
+  } catch (err) {
+    setError(err.message);
+    throw err;
+  } finally {
+    setIsLoading(false);
+  }
+}, []);
   const logout = useCallback(async () => {
     try {
       setIsLoading(true);
@@ -118,16 +139,17 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const value = {
-    user,
-    isLoading,
-    error,
-    isAuthenticated,
-    register,
-    login,
-    logout,
-    getProfile,
-    refreshToken,
-  };
+  user,
+  isLoading,
+  error,
+  isAuthenticated,
+  register,
+  login,
+  googleLogin,
+  logout,
+  getProfile,
+  refreshToken,
+};
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

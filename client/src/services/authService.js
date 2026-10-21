@@ -17,6 +17,14 @@ const authService = {
       throw error;
     }
   },
+  // Google login
+  async googleLogin(credential) {
+    const response = await api.post("/auth/google", {
+      credential,
+    });
+
+    return response.data;
+  },
 
   // Login user
   async login(email, password) {
