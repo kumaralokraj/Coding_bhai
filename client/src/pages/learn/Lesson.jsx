@@ -11,6 +11,8 @@ function Lesson() {
   const [error, setError] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  const pdfSource = lesson?.pdf_data || lesson?.pdf_url;
+
   useEffect(() => {
     const fetchLesson = async () => {
       setLoading(true);
@@ -81,6 +83,30 @@ function Lesson() {
                 <h1 className="mt-3 text-3xl font-bold sm:text-4xl">
                   {lesson.lesson_title}
                 </h1>
+
+                {pdfSource && (
+                  <div className="mt-8 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900">
+                    <div className="flex items-center justify-between gap-3 border-b border-slate-800 px-4 py-3">
+                      <span className="text-sm font-medium text-cyan-300">
+                        PDF Notes
+                      </span>
+                      <a
+                        href={pdfSource}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="rounded-lg bg-cyan-400 px-3 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-300"
+                      >
+                        Open PDF
+                      </a>
+                    </div>
+                    <iframe
+                      src={pdfSource}
+                      title="Lesson PDF"
+                      className="h-[700px] w-full bg-white"
+                    />
+                  </div>
+                )}
+
                 <div className="mt-8 whitespace-pre-wrap rounded-2xl border border-slate-800 bg-slate-900 p-6 leading-8 text-slate-200 sm:p-8">
                   {lesson.content}
                 </div>

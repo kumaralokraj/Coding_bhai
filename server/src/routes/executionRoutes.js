@@ -1,14 +1,41 @@
-import express from "express";
-import authMiddleware from "../middleware/authMiddleware.js";
-import * as executionController from "../controllers/executionController.js";
 
-const router = express.Router();
+import { Router } from "express";
+import { rateLimit } from "express-rate-limit";
 
-// All execution routes require authentication
-router.post("/run", authMiddleware, executionController.runCode);
-router.post("/submit", authMiddleware, executionController.submitCode);
-router.get("/status/:executionId", executionController.getExecutionStatus);
-router.get("/history", authMiddleware, executionController.getExecutionHistory);
-router.get("/:id", authMiddleware, executionController.getExecutionById);
+import {
+  runCode,
+  fetchExecutionResult,
+  fetchLanguages,
+} from "../controllers/executionController.js";
+
+const router = Router();
+
+const executionLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  limit: 10,
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message: "Too many execution requests. Try again later.",
+  },
+});
+
+const resultLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  limit: 120,
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message: "Too many result checks. Try again later.",
+  },
+});
+
+router.get("/languages", fetchLanguages);
+
+router.post("/", executionLimiter, runCode);
+
+router.get("/:token", resultLimiter, fetchExecutionResult);
 
 export default router;

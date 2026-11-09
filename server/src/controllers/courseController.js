@@ -1,6 +1,14 @@
 
 import pool from "../config/db.js";
 
+const ensureLessonPdfColumns = async () => {
+  await pool.query(`
+    ALTER TABLE lessons
+      ADD COLUMN IF NOT EXISTS pdf_data TEXT,
+      ADD COLUMN IF NOT EXISTS pdf_url TEXT;
+  `);
+};
+
 export const getPublishedCourses = async (req, res) => {
   try {
     const { search = "", category = "" } = req.query;
@@ -62,6 +70,8 @@ export const getPublishedCourse = async (req, res) => {
 
 export const getPublishedLesson = async (req, res) => {
   try {
+    await ensureLessonPdfColumns();
+
     const { rows } = await pool.query(
       `SELECT
          c.id AS course_id,
@@ -71,7 +81,9 @@ export const getPublishedLesson = async (req, res) => {
          l.title AS lesson_title,
          l.slug AS lesson_slug,
          l.content,
-         l.position
+         l.position,
+         l.pdf_data,
+         l.pdf_url
        FROM courses c
        JOIN lessons l ON l.course_id = c.id
        WHERE c.slug = $1

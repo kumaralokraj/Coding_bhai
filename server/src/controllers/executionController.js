@@ -1,113 +1,109 @@
-import { pool } from "../../server.js";
 
-export const runCode = async (req, res, next) => {
+import {
+  executeCode,
+  getLanguages,
+  getExecutionResult,
+} from "../services/executionService.js";
+import { Judge0Error } from "../services/judge0Service.js";
+
+export async function runCode(req, res) {
   try {
-    const { code, language, input } = req.body;
-    const userId = req.userId;
+    const { languageId, sourceCode, stdin = "" } = req.body ?? {};
 
-    const result = await pool.query(
-      "INSERT INTO executions (user_id, code, language, input, status) VALUES ($1, $2, $3, $4, $5) RETURNING *",
-      [userId, code, language, input, "running"]
-    );
-
-    // TODO: Execute code here and update status
-    res.status(201).json({
-      success: true,
-      message: "Code execution started",
-      execution: result.rows[0],
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const submitCode = async (req, res, next) => {
-  try {
-    const { problemId, code, language } = req.body;
-    const userId = req.userId;
-
-    const result = await pool.query(
-      "INSERT INTO submissions (problem_id, user_id, code, language, status) VALUES ($1, $2, $3, $4, $5) RETURNING *",
-      [problemId, userId, code, language, "pending"]
-    );
-
-    // TODO: Execute against test cases
-    res.status(201).json({
-      success: true,
-      message: "Code submitted for evaluation",
-      submission: result.rows[0],
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const getExecutionStatus = async (req, res, next) => {
-  try {
-    const { executionId } = req.params;
-
-    const result = await pool.query(
-      "SELECT * FROM executions WHERE id = $1",
-      [executionId]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({
+    if (
+      !Number.isInteger(languageId) ||
+      languageId <= 0 ||
+      typeof sourceCode !== "string" ||
+      !sourceCode.trim() ||
+      typeof stdin !== "string"
+    ) {
+      return res.status(400).json({
         success: false,
-        message: "Execution not found",
+        message: "Invalid language, source code, or input",
       });
     }
 
-    res.json({
+    const result = await executeCode(languageId, sourceCode, stdin);
+
+    return res.status(202).json({
       success: true,
-      execution: result.rows[0],
+      token: result.token,
+      status: "queued",
     });
   } catch (error) {
-    next(error);
-  }
-};
+    console.error("Execution submission failed:", error.message);
 
-export const getExecutionHistory = async (req, res, next) => {
-  try {
-    const userId = req.userId;
-    const { page = 1, limit = 10 } = req.query;
-    const offset = (page - 1) * limit;
-
-    const result = await pool.query(
-      "SELECT * FROM executions WHERE user_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3",
-      [userId, limit, offset]
-    );
-
-    res.json({
-      success: true,
-      executions: result.rows,
+    return res.status(
+      error instanceof Judge0Error ? error.statusCode : 502
+    ).json({
+      success: false,
+      message:
+        error instanceof Judge0Error
+          ? error.publicMessage
+          : "Execution service unavailable.",
     });
-  } catch (error) {
-    next(error);
   }
-};
+}
 
-export const getExecutionById = async (req, res, next) => {
+export async function fetchExecutionResult(req, res) {
   try {
-    const { id } = req.params;
+    const { token } = req.params;
 
-    const result = await pool.query(
-      "SELECT * FROM executions WHERE id = $1",
-      [id]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({
+    if (!/^[0-9a-fA-F-]{36}$/.test(token)) {
+      return res.status(400).json({
         success: false,
-        message: "Execution not found",
+        message: "Invalid submission token",
       });
     }
 
-    res.json({
+    const result = await getExecutionResult(token);
+
+    return res.json({
       success: true,
-      execution: result.rows[0],
+      data: {
+        stdout: result.stdout,
+        stderr: result.stderr,
+        compileOutput: result.compile_output,
+        message: result.message,
+        status: result.status,
+        time: result.time,
+        memory: result.memory,
+      },
     });
   } catch (error) {
-    next(error);
+    console.error("Execution result fetch failed:", error.message);
+
+    return res.status(
+      error instanceof Judge0Error ? error.statusCode : 502
+    ).json({
+      success: false,
+      message:
+        error instanceof Judge0Error
+          ? error.publicMessage
+          : "Unable to retrieve execution result.",
+    });
   }
-};
+}
+
+export async function fetchLanguages(req, res) {
+  try {
+    const languages = await getLanguages();
+
+    return res.json({
+      success: true,
+      data: languages,
+    });
+  } catch (error) {
+    console.error("Language fetch failed:", error.message);
+
+    return res.status(
+      error instanceof Judge0Error ? error.statusCode : 502
+    ).json({
+      success: false,
+      message:
+        error instanceof Judge0Error
+          ? error.publicMessage
+          : "Unable to fetch languages.",
+    });
+  }
+}

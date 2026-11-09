@@ -90,6 +90,26 @@ Located in `.env`:
 - `PORT`: Server port (default: 5000)
 - `JWT_SECRET`: Secret key for JWT tokens
 
+### Judge0 code execution
+
+Set `JUDGE0_URL` to the Judge0 API base URL when it is available. The URL
+should be the base address only (for example, `http://localhost:2358`), not a
+`/languages` or `/submissions` endpoint. Set `JUDGE0_AUTH_TOKEN` if the
+Judge0 instance requires an API token; leave it empty otherwise.
+
+The IDE uses these endpoints:
+
+| Method | Endpoint | Purpose |
+|--------|----------|---------|
+| GET | `/api/execute/languages` | List supported languages |
+| POST | `/api/execute` | Queue code for execution |
+| GET | `/api/execute/:token` | Poll for execution output |
+
+The submission endpoint accepts `languageId`, `sourceCode`, and optional
+`stdin`. CPU time, wall time, and memory are limited on the server and are
+not configurable by the client. Until `JUDGE0_URL` is configured, these
+endpoints return a clear service-configuration error.
+
 ---
 
 ## API Endpoints Summary

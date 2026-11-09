@@ -17,6 +17,10 @@ import adminProblemRoutes from "./routes/adminProblemRoutes.js";
 import adminCourseRoutes from "./routes/adminCourseRoutes.js";
 import courseRoutes from "./routes/courseRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
+import ideRoutes from "./routes/ideRoutes.js";
+import executionRoutes from "./routes/executionRoutes.js";
+
+
 
 
 
@@ -41,6 +45,8 @@ app.use("/api/problems", problemRoutes);
 app.use("/api/admin/problems", adminProblemRoutes);
 app.use("/api/admin/courses", adminCourseRoutes);
 app.use("/api/courses", courseRoutes);
+app.use("/api/execute", executionRoutes);
+app.use("/api/ide", ideRoutes);
 
 app.use("/api/auth", authRoutes);
 app.use("/api/dashboard", dashboardRoutes);

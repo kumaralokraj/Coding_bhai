@@ -8,6 +8,7 @@ const initialForm = {
   slug: "",
   content: "",
   position: 1,
+  pdf_data: "",
 };
 
 function makeSlug(value = "") {
@@ -76,6 +77,39 @@ function AdminLessons() {
     }));
   };
 
+  const handlePdfFileChange = async (event) => {
+    const file = event.target.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    if (file.type !== "application/pdf") {
+      setError("Only PDF files can be uploaded.");
+      event.target.value = "";
+      return;
+    }
+
+    try {
+      const pdfData = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(new Error("Failed to read PDF file."));
+        reader.readAsDataURL(file);
+      });
+
+      setForm((previous) => ({
+        ...previous,
+        pdf_data: pdfData,
+      }));
+      setError("");
+      setMessage("PDF selected successfully.");
+    } catch (err) {
+      setError(err.message || "PDF upload failed.");
+      event.target.value = "";
+    }
+  };
+
   const resetForm = () => {
     setForm({
       ...initialForm,
@@ -91,6 +125,7 @@ function AdminLessons() {
       slug: lesson.slug || "",
       content: lesson.content || "",
       position: lesson.position || 1,
+      pdf_data: lesson.pdf_data || "",
     });
 
     setMessage("");
@@ -108,6 +143,7 @@ function AdminLessons() {
       const payload = {
         ...form,
         position: Number(form.position),
+        pdf_data: form.pdf_data || "",
       };
 
       if (editingId) {
@@ -245,9 +281,8 @@ function AdminLessons() {
           </label>
 
           <label className="block text-sm text-slate-300">
-            Lesson notes *
+            Lesson notes
             <textarea
-              required
               name="content"
               value={form.content}
               onChange={handleFieldChange}
@@ -257,7 +292,6 @@ function AdminLessons() {
 Explain the concept here.
 
 ## Example
-
 Write code examples here.
 
 ## Key points
@@ -267,7 +301,21 @@ Write code examples here.
               className="mt-2 w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 font-mono text-sm leading-7 outline-none focus:border-cyan-400"
             />
             <span className="mt-2 block text-xs text-slate-500">
-              Notes abhi plain text/Markdown format mein save honge.
+              Notes optional hain. Agar PDF upload karte ho toh notes khali bhi reh sakta hai.
+            </span>
+          </label>
+          <label className="block text-sm text-slate-300">
+            Lesson PDF
+            <input
+              type="file"
+              accept="application/pdf"
+              onChange={handlePdfFileChange}
+              className="mt-2 block w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-slate-300 outline-none file:mr-4 file:rounded file:border-0 file:bg-cyan-400 file:px-3 file:py-2 file:font-semibold file:text-slate-950"
+            />
+            <span className="mt-2 block text-xs text-slate-500">
+              {form.pdf_data
+                ? "PDF selected and will be saved with this lesson."
+                : "Optional: upload a PDF for this lesson."}
             </span>
           </label>
 

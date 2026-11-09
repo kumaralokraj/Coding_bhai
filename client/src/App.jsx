@@ -5,6 +5,10 @@ import ForgotPassword from "./pages/auth/ForgotPassword";
 import ResetPassword from "./pages/auth/ResetPassword";
 import AdminCourses from "./pages/admin/AdminCourses";
 import AdminLessons from "./pages/admin/AdminLessons";
+import OnlineIDE from "./pages/ide/OnlineIDE";
+
+// Inside <Routes>
+
 // Layout
 import AppLayout from "./components/layout/AppLayout";
 
@@ -72,6 +76,7 @@ function App() {
 
         {/* Dashboard */}
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/ide" element={<OnlineIDE />} />
 
         {/* Progress */}
         <Route path="/progress" element={<Progress />} />

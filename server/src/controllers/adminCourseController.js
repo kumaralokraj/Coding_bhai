@@ -1,6 +1,14 @@
 
 import pool from "../config/db.js";
 
+const ensureLessonPdfColumns = async () => {
+  await pool.query(`
+    ALTER TABLE lessons
+      ADD COLUMN IF NOT EXISTS pdf_data TEXT,
+      ADD COLUMN IF NOT EXISTS pdf_url TEXT;
+  `);
+};
+
 const validStatus = (status) =>
   status === "draft" || status === "published";
 
@@ -151,6 +159,8 @@ export const deleteCourse = asyncHandler(async (req, res) => {
 });
 
 export const getCourseLessons = asyncHandler(async (req, res) => {
+  await ensureLessonPdfColumns();
+
   const { rows: courses } = await pool.query(
     "SELECT id FROM courses WHERE id = $1",
     [req.params.id]
@@ -171,12 +181,16 @@ export const getCourseLessons = asyncHandler(async (req, res) => {
 });
 
 export const createLesson = asyncHandler(async (req, res) => {
+  await ensureLessonPdfColumns();
+
   const { id: courseId } = req.params;
   const {
     title,
     slug,
     content = "",
     position,
+    pdf_data,
+    pdf_url,
   } = req.body;
 
   if (!title?.trim()) {
@@ -201,10 +215,18 @@ export const createLesson = asyncHandler(async (req, res) => {
   const lessonPosition = position ?? positions[0].next_position;
 
   const { rows } = await pool.query(
-    `INSERT INTO lessons (course_id, title, slug, content, position)
-     VALUES ($1, $2, $3, $4, $5)
+    `INSERT INTO lessons (course_id, title, slug, content, position, pdf_data, pdf_url)
+     VALUES ($1, $2, $3, $4, $5, $6, $7)
      RETURNING *`,
-    [courseId, title.trim(), lessonSlug, content, lessonPosition]
+    [
+      courseId,
+      title.trim(),
+      lessonSlug,
+      content,
+      lessonPosition,
+      pdf_data || null,
+      pdf_url || null,
+    ]
   );
 
   res.status(201).json({
@@ -214,8 +236,10 @@ export const createLesson = asyncHandler(async (req, res) => {
 });
 
 export const updateLesson = asyncHandler(async (req, res) => {
+  await ensureLessonPdfColumns();
+
   const { id } = req.params;
-  const { title, slug, content, position, status } = req.body;
+  const { title, slug, content, position, status, pdf_data, pdf_url } = req.body;
 
   if (status !== undefined && !validStatus(status)) {
     return res.status(400).json({ message: "Invalid lesson status." });
@@ -239,8 +263,10 @@ export const updateLesson = asyncHandler(async (req, res) => {
          content = $3,
          position = $4,
          status = $5,
+         pdf_data = $6,
+         pdf_url = $7,
          updated_at = NOW()
-     WHERE id = $6
+     WHERE id = $8
      RETURNING *`,
     [
       title === undefined ? old.title : title.trim(),
@@ -248,6 +274,8 @@ export const updateLesson = asyncHandler(async (req, res) => {
       content ?? old.content,
       position ?? old.position,
       status ?? old.status,
+      pdf_data === undefined ? old.pdf_data : pdf_data || null,
+      pdf_url === undefined ? old.pdf_url : pdf_url || null,
       id,
     ]
   );

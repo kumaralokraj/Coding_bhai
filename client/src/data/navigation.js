@@ -15,6 +15,11 @@ export const navigationItems = [
     icon: "▣",
   },
   {
+    name: "Online IDE",
+    path: "/ide",
+    icon: "💻",
+  },
+  {
     name: "Learn",
     path: "/learn",
     icon: "📚",
